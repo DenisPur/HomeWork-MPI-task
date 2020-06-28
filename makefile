@@ -1,14 +1,16 @@
-FLAGS = -Wall -O2 
+FLAGS = -Wall -O2
+COMPILER = gfortran
+
 TM = task
 CM = const
 
 main: main.f90 $(TM).o $(CM).o
-	gfortran $^ $(FLAGS) -o $@
+	$(COMPILER) $^ $(FLAGS) -o $@
 
 $(TM).o: $(TM).f90 $(CM).o
-	gfortran $^ $(FLAGS) -c
+	$(COMPILER) $^ $(FLAGS) -c
 $(CM).o: $(CM).f90
-	gfortran $^ $(FLAGS) -c
+	$(COMPILER) $^ $(FLAGS) -c
 
 clear:
 	rm -f *.o *.mod

@@ -6,7 +6,7 @@ contains
 subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
     real(mp), intent(in), dimension(:,:) :: A
     integer(4), intent(out) :: x1, y1, x2, y2
-    integer(4) :: n, L, R, Up, Down, m, tmp
+    integer(4) :: n, L, R, Up, Down, m
     real(mp), allocatable :: current_column(:)
     real(mp) :: current_sum, max_sum
 
@@ -14,6 +14,8 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
     n = size(A, dim = 2) 
 
     allocate(current_column(m))
+
+    write(*,'(a, i7, i7)') '#', m, n
 
     x1 = 1
     y1 = 1
@@ -31,12 +33,7 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
             
             call FindMaxInArray(current_column, current_sum, Up, Down)
 
-            ! write(*,*) '    max_sum =', max_sum 
-            ! write(*,*) 'current_sum =', current_sum
-
             if (current_sum > max_sum) then
-                ! write(*,*) 'get!', x1, y1, x2, y2
-                
                 max_sum = current_sum
                 x1 = Up
                 x2 = Down
@@ -62,10 +59,6 @@ subroutine FindMaxInArray(A, Summ, Up, Down)
     minus_pos = 0
 
     do i = 1, size(A)
-        ! write(*,*) '#I -------', i
-        ! write(*,*) '   A(i) =', A(i)
-        ! write(*,*) 'cur_sum =', cur_sum
-
         cur_sum = cur_sum + A(i)
         if (cur_sum > Summ) then
             Summ = cur_sum
