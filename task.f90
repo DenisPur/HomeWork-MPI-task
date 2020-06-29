@@ -1,21 +1,25 @@
 module task
 use const
-implicit none
+include 'mpif.h'
 contains
 
-subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
-    real(mp), intent(in), dimension(:,:) :: A
+subroutine GetMaxCoordinates(A, x1, y1, x2, y2, mpiErr)
+    implicit none
     integer(4), intent(out) :: x1, y1, x2, y2
-    integer(4) :: n, L, R, Up, Down, m
-    real(mp), allocatable :: current_column(:)
+    real(mp), intent(in), dimension(:,:) :: A
+    integer(4) :: L, R, Up, Down, n, m, max_num(1)
+    integer(4) :: mpiErr, mpiSize, mpiRank
+    real(mp), allocatable :: current_column(:), global_max_sum(:)
     real(mp) :: current_sum, max_sum
+
+    call mpi_comm_size(MPI_COMM_WORLD, mpiSize, mpiErr)
+    call mpi_comm_rank(MPI_COMM_WORLD, mpiRank, mpiErr)
+    ! write(*,*) "MPI_COMM_WORLD Size and Rank:", mpiSize, mpiRank
 
     m = size(A, dim = 1) 
     n = size(A, dim = 2) 
 
-    allocate(current_column(m))
-
-    write(*,'(a, i7, i7)') '#', m, n
+    allocate(current_column(m), global_max_sum(mpiSize))
 
     x1 = 1
     y1 = 1
@@ -23,7 +27,7 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
     y2 = 1
     max_sum = A(1, 1)
 
-    do L = 1, n
+    do L = (mpiRank+1), n, mpiSize
         current_column = A(:, L)
 
         do R = L, n
@@ -42,10 +46,21 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2)
             endif
         end do
     end do
-    deallocate(current_column)
+
+    call mpi_gather(max_sum, 1, MPI_REAL4, global_max_sum, 1, MPI_REAL8, 0, MPI_COMM_WORLD, mpiErr)
+    max_num = maxloc(global_max_sum) - 1
+    call mpi_bcast(max_num, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr)
+
+    call mpi_bcast(x1, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(x2, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(y1, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(y2, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
+
+    deallocate(current_column, global_max_sum)
 end subroutine
 
 subroutine FindMaxInArray(A, Summ, Up, Down)
+    implicit none
     real(mp), intent(in), dimension(:) :: A
     integer(4), intent(out) :: Up, Down
     real(mp), intent(out) :: Summ

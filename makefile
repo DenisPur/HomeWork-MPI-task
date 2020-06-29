@@ -1,5 +1,5 @@
-FLAGS = -Wall -O2
-COMPILER = gfortran
+FLAGS = -O2
+COMPILER = mpiifort
 
 TM = task
 CM = const
