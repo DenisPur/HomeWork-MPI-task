@@ -28,9 +28,7 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2, mpiErr)
     max_sum = A(1, 1)
 
     do L = mpiRank, n, mpiSize
-        if (L == 0) then 
-            cycle
-        end if
+        if (L == 0) cycle
         current_column = A(:, L)
 
         do R = L, n
@@ -50,14 +48,16 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2, mpiErr)
         end do
     end do
 
-    call mpi_gather(max_sum, 1, MPI_REAL4, global_max_sum, 1, MPI_REAL8, 0, MPI_COMM_WORLD, mpiErr)
+    global_max_sum = 777.0
+
+    call mpi_gather(max_sum, 1, MPI_REAL4, global_max_sum, 1, MPI_REAL4, 0, MPI_COMM_WORLD, mpiErr)
     max_num = maxloc(global_max_sum) - 1
     call mpi_bcast(max_num, 1, MPI_INTEGER4, 0, MPI_COMM_WORLD, mpiErr)
 
-    call mpi_bcast(x1, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
-    call mpi_bcast(x2, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
-    call mpi_bcast(y1, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
-    call mpi_bcast(y2, 1, MPI_INTEGER4, max_num, MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(x1, 1, MPI_INTEGER4, max_num(1), MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(x2, 1, MPI_INTEGER4, max_num(1), MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(y1, 1, MPI_INTEGER4, max_num(1), MPI_COMM_WORLD, mpiErr)
+    call mpi_bcast(y2, 1, MPI_INTEGER4, max_num(1), MPI_COMM_WORLD, mpiErr)
 
     deallocate(current_column, global_max_sum)
 end subroutine

@@ -10,6 +10,7 @@ implicit none
 
     open(1, file = './data.dat')
     read(1, *) m, n
+
     allocate( A(m,n) )
 
     read(1, *) A
