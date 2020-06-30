@@ -22,10 +22,10 @@ implicit none
     call GetMaxCoordinates(A, x1, y1, x2, y2, mpiErr)
 
     if(mpiRank == 0) then
-        write(*,'(a, i5)') '# y1', y1
-        write(*,'(a, i5)') '# y2', y2
         write(*,'(a, i5)') '# x1', x1
+        write(*,'(a, i5)') '# y1', y1
         write(*,'(a, i5)') '# x2', x2
+        write(*,'(a, i5)') '# y2', y2
 
         write(*,*) 'control sum:', sum(A(x1:x2, y1:y2))
     end if
