@@ -27,7 +27,10 @@ subroutine GetMaxCoordinates(A, x1, y1, x2, y2, mpiErr)
     y2 = 1
     max_sum = A(1, 1)
 
-    do L = (mpiRank+1), n, mpiSize
+    do L = mpiRank, n, mpiSize
+        if (L == 0) then 
+            cycle
+        end if
         current_column = A(:, L)
 
         do R = L, n
